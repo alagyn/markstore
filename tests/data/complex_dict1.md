@@ -6,10 +6,7 @@ Entry1
 SubEntry1
 
 ## Subkey2
-### Subkey2.1
-Leaf1
-### Subkey2.2
-Leaf2
+SubEntry2
 
 # Key3
 Entry3

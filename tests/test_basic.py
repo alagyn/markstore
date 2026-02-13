@@ -2,10 +2,51 @@ import unittest
 
 import markstore
 
-from utils import get_data
+from utils import get_data, test_deserialize, test_serialize
 
-FILE_BASIC = get_data("basic.md")
-EXPECTED_BASIC = {
+FILE_TRIVIAL_STRING = get_data("trivial_string.md")
+EXPECTED_TRIVIAL_STRING = "This is just a string"
+
+FILE_TRIVIAL_LIST = get_data("trivial_list.md")
+EXPECTED_TRIVIAL_LIST = ["one", "two", "three"]
+
+FILE_COMPLEX_LIST = get_data("complex_list.md")
+EXPECTED_COMPLEX_LIST = [
+    "one", ["sub1", "sub2", ["subsub1", "subsub2"]], "three"
+]
+
+FILE_TRIVIAL_DICT = get_data("trivial_dict.md")
+EXPECTED_TRIVIAL_DICT = {
+    "Key1": "Entry1",
+    "Key2": "Entry2",
+    "Key3": "Entry3",
+}
+
+FILE_COMPLEX_DICT1 = get_data("complex_dict1.md")
+EXPECTED_COMPLEX_DICT1 = {
+    "Key1": "Entry1",
+    "Key2": {
+        "Subkey1": "SubEntry1",
+        "Subkey2": "SubEntry2"
+    },
+    "Key3": "Entry3"
+}
+
+FILE_COMPLEX_DICT2 = get_data("complex_dict2.md")
+EXPECTED_COMPLEX_DICT2 = {
+    "Key1": "Entry1",
+    "Key2": {
+        "Subkey1": "SubEntry1",
+        "Subkey2": {
+            "Subkey2.1": "Leaf1",
+            "Subkey2.2": "Leaf2"
+        }
+    },
+    "Key3": "Entry3"
+}
+
+FILE_COMPLICATED = get_data("complicated.md")
+EXPECTED_COMPLICATED = {
     "My Key":
     "My Data",
     "Data": {
@@ -22,58 +63,47 @@ EXPECTED_BASIC = {
     ]
 }
 
-FILE_TRIVIAL_LIST = get_data("trivial_list.md")
-EXPECTED_TRIVIAL_LIST = ["one", "two", "three"]
-
-FILE_COMPLEX_LIST = "complex_list.md"
-EXPECTED_COMPLEX_LIST = [
-    "one", ["sub1", "sub2", ["subsub1", "subsub2"]], "three"
-]
-
 
 class TestBasic(unittest.TestCase):
 
-    def test_basic_deserialize(self):
+    test_trivial_str_deserialize = test_deserialize(FILE_TRIVIAL_STRING,
+                                                    EXPECTED_TRIVIAL_STRING)
 
-        with open(FILE_BASIC, mode='r') as f:
-            data = markstore.load(f)
+    test_trivial_str_serialize = test_serialize(FILE_TRIVIAL_STRING,
+                                                EXPECTED_TRIVIAL_STRING)
 
-        self.assertDictEqual(EXPECTED_BASIC, data)
+    test_trivial_list_deserialize = test_deserialize(FILE_TRIVIAL_LIST,
+                                                     EXPECTED_TRIVIAL_LIST)
 
-    def test_basic_serialize(self):
-        out = markstore.dumps(EXPECTED_BASIC)
+    test_trivial_list_serialize = test_serialize(FILE_TRIVIAL_LIST,
+                                                 EXPECTED_TRIVIAL_LIST)
 
-        with open(FILE_BASIC, mode='r') as f:
-            expected_file = f.read()
+    test_complex_list_deserialize = test_deserialize(FILE_COMPLEX_LIST,
+                                                     EXPECTED_COMPLEX_LIST)
 
-        self.assertEqual(expected_file, out)
+    test_complex_list_serialize = test_serialize(FILE_COMPLEX_LIST,
+                                                 EXPECTED_COMPLEX_LIST)
 
-    def test_trivial_list_deserialize(self):
+    test_trivial_dict_deserialize = test_deserialize(FILE_TRIVIAL_DICT,
+                                                     EXPECTED_TRIVIAL_DICT)
 
-        with open(get_data(FILE_TRIVIAL_LIST), mode='r') as f:
-            data = markstore.load(f)
+    test_trivial_dict_serialize = test_serialize(FILE_TRIVIAL_DICT,
+                                                 EXPECTED_TRIVIAL_DICT)
 
-        self.assertListEqual(EXPECTED_TRIVIAL_LIST, data)
+    test_complex_dict1_deserialize = test_deserialize(FILE_COMPLEX_DICT1,
+                                                      EXPECTED_COMPLEX_DICT1)
 
-    def test_trivial_list_serialize(self):
-        with open(get_data(FILE_TRIVIAL_LIST), mode='r') as f:
-            expected_file = f.read()
+    test_complex_dict1_serialize = test_serialize(FILE_COMPLEX_DICT1,
+                                                  EXPECTED_COMPLEX_DICT1)
 
-        out = markstore.dumps(EXPECTED_TRIVIAL_LIST)
+    test_complex_dict2_deserialize = test_deserialize(FILE_COMPLEX_DICT2,
+                                                      EXPECTED_COMPLEX_DICT2)
 
-        self.assertEqual(expected_file, out)
+    test_complex_dict2_serialize = test_serialize(FILE_COMPLEX_DICT2,
+                                                  EXPECTED_COMPLEX_DICT2)
 
-    def test_complex_list_deserialize(self):
+    test_complicated_deserialize = test_deserialize(FILE_COMPLICATED,
+                                                    EXPECTED_COMPLICATED)
 
-        with open(get_data(FILE_COMPLEX_LIST), mode='r') as f:
-            data = markstore.load(f)
-
-        self.assertListEqual(EXPECTED_COMPLEX_LIST, data)
-
-    def test_complex_list_serialize(self):
-        with open(get_data(FILE_COMPLEX_LIST), mode='r') as f:
-            expected_file = f.read()
-
-        out = markstore.dumps(EXPECTED_COMPLEX_LIST)
-
-        self.assertEqual(expected_file, out)
+    test_complicated_serialize = test_serialize(FILE_COMPLICATED,
+                                                EXPECTED_COMPLICATED)
