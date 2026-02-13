@@ -90,8 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     needs:
-      - sdist
-      - wheels
+      - build
     environment:
       name: pypi
       url: https://pypi.org/p/markstore
