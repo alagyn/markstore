@@ -34,58 +34,7 @@ jobs:
         with:
           name: wheel
           path: dist/*.whl
-          
-  wheels:
-    runs-on: ${{ matrix.os }}
-    name: ${{ matrix.name }}
-    strategy:
-      matrix:
-        include:
-          - name: manylinux
-            os: ubuntu-latest
-            build: "cp*manylinux*"
-            prebuild: >
-              dnf install -y
-              libXrandr-devel
-              libXinerama-devel
-              libXcursor-devel
-              libXi-devel
-              mesa-libGL-devel
 
-          # - name: musllinux
-          #   os: ubuntu-latest
-          #   build: "cp*musllinux*"
-          #   prebuild: >
-
-          - name: windows
-            os: windows-latest
-            build: "cp*amd64*"
-
-          - name: macos-14
-            os: macos-14
-            
-          - name: macos-15-intel
-            os: macos-15-intel
-
-          - name: macos-latest
-            os: macos-latest
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - uses: pypa/cibuildwheel@v3.1.4
-        env:
-          CIBW_BEFORE_ALL_LINUX: ${{ matrix.prebuild }}
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-          # only build cpython
-          CIBW_BUILD: ${{ matrix.build }}
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: wheels-${{ matrix.os }}
-          path: wheelhouse/*.whl
   pypi-publish:
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
