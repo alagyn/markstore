@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=58.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "markstore"
+version = "1.0.0"
+authors = [{ name = "Alagyn" }]
+description = "Markdown as plain-text data storage"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
+    "Intended Audience :: Developers",
+]
+license = "MIT"
+
+[project.urls]
+Repository = "https://github.com/alagyn/markstore"
+Issues = "https://github.com/alagyn/markstore/issues"
