@@ -107,8 +107,10 @@ class _MarkstoreDumper:
         elif isinstance(obj, str):
             lines = obj.splitlines(keepends=True)
             for idx, line in enumerate(lines):
+                # Escape inner pounds
+                if line.startswith("#"):
+                    self.fp.write(b"\\")
                 self.fp.write(line.encode())
-                # if idx + 1 < len(lines):
                 if line.endswith("\n"):
                     self._write_indent()
 
@@ -233,6 +235,9 @@ class _MarkstoreLoader:
                 obj = c + self.fp.readline()
             else:
                 obj = c
+
+            if obj.startswith(b'\\#'):
+                obj = obj[1:]
             while True:
                 newIndent = self._consume_indent(self.indent)
                 if newIndent < self.indent:
@@ -249,6 +254,9 @@ class _MarkstoreLoader:
                     new_line = c + self.fp.readline()
                 else:
                     new_line = c
+
+                if new_line.startswith(b'\\#'):
+                    new_line = new_line[1:]
 
                 obj += new_line
             obj = obj.decode()

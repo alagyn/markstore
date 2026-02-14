@@ -70,6 +70,12 @@ EXPECTED_NEGATIVE_NUMBERS = {
     "MyList": ["10", "11", "-9"]
 }
 
+FILE_STRINGS_WITH_POUND = get_data("strings_with_pound.md")
+EXPECTED_STRINGS_WITH_POUND = {
+    "My Key": "# My string starts with #",
+    "My other key": "# My other string has\n#multiple\n# pounds"
+}
+
 
 class TestBasic(unittest.TestCase):
 
@@ -120,3 +126,9 @@ class TestBasic(unittest.TestCase):
 
     test_negative_numbers_serialize = test_serialize(
         FILE_NEGATIVE_NUMBERS, EXPECTED_NEGATIVE_NUMBERS)
+
+    test_strings_with_pound_deserialize = test_deserialize(
+        FILE_STRINGS_WITH_POUND, EXPECTED_STRINGS_WITH_POUND)
+
+    test_strings_with_pound_serialize = test_serialize(
+        FILE_STRINGS_WITH_POUND, EXPECTED_STRINGS_WITH_POUND)
