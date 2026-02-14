@@ -63,6 +63,13 @@ EXPECTED_COMPLICATED = {
     ]
 }
 
+FILE_NEGATIVE_NUMBERS = get_data("negative_numbers.md")
+EXPECTED_NEGATIVE_NUMBERS = {
+    "MyData": "12",
+    "MyNegative": "-21",
+    "MyList": ["10", "11", "-9"]
+}
+
 
 class TestBasic(unittest.TestCase):
 
@@ -107,3 +114,9 @@ class TestBasic(unittest.TestCase):
 
     test_complicated_serialize = test_serialize(FILE_COMPLICATED,
                                                 EXPECTED_COMPLICATED)
+
+    test_negative_numbers_deserialize = test_deserialize(
+        FILE_NEGATIVE_NUMBERS, EXPECTED_NEGATIVE_NUMBERS)
+
+    test_negative_numbers_serialize = test_serialize(
+        FILE_NEGATIVE_NUMBERS, EXPECTED_NEGATIVE_NUMBERS)

@@ -206,7 +206,8 @@ class _MarkstoreLoader:
 
             self.dictDepth -= 1
 
-        elif c == b'-':
+        elif c == b'-' and self.fp.read(1) == b' ':
+            self._unget()
             obj = []
             while c == b'-':
                 self.indent += 2
@@ -223,6 +224,9 @@ class _MarkstoreLoader:
                     break
 
         else:
+            if c == b'-':
+                # Have to unget the check for a space
+                self._unget()
             # It's a string
             # Read lines until we hit an important char
             if c != b'\n':
