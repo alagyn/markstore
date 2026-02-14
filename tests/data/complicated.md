@@ -1,11 +1,9 @@
 # My Key
 My Data
-
 # Data
 ## Subdata
 ### Leaf
 This here is my data
-
 # My List
 - Entry one
 - Entry two

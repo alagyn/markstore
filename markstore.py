@@ -1,10 +1,6 @@
 from typing import BinaryIO, Any
 import io
 
-import logging
-
-_log = logging.getLogger("markstore")
-
 
 def dump(obj: Any, fp: BinaryIO) -> None:
     """
@@ -63,31 +59,26 @@ class _MarkstoreDumper:
     def __init__(self, fp: BinaryIO) -> None:
         self.fp = fp
         self.indent = 0
-        self.dictDepth = [1]
-
-        self._loggedDepth = False
+        self.dictDepth = 1
 
     def _write_indent(self):
         for _ in range(self.indent):
             self.fp.write(b" ")
 
     def _inc_dict(self):
-        self.dictDepth[-1] += 1
-        if self.dictDepth[-1] > 6 and not self._loggedDepth:
-            _log.warning(
-                "markstore: dictionary depth > 6, output markdown will not conform to CommonMark standard"
-            )
-            self._loggedDepth = True
+        self.dictDepth += 1
 
     def _dec_dict(self):
-        self.dictDepth[-1] -= 1
-        if self.dictDepth[-1] < 1:
+        self.dictDepth -= 1
+        if self.dictDepth < 1:
             raise RuntimeError("DEV-ERROR: _dec_dict() called too many times")
 
     def _write_dict_key(self, key: str):
-        for _ in range(self.dictDepth[-1]):
+        for _ in range(self.dictDepth):
             self.fp.write(b"#")
         self.fp.write(b" ")
+        if not isinstance(key, str):
+            key = str(key)
         self.fp.write(key.encode())
 
     def _dump_obj(self, obj):
@@ -110,14 +101,15 @@ class _MarkstoreDumper:
                 self._dec_dict()
 
                 if idx + 1 < len(obj):
-                    self.fp.write(b"\n\n")
+                    self.fp.write(b"\n")
                     self._write_indent()
 
         elif isinstance(obj, str):
             lines = obj.splitlines(keepends=True)
             for idx, line in enumerate(lines):
                 self.fp.write(line.encode())
-                if idx + 1 < len(lines):
+                # if idx + 1 < len(lines):
+                if line.endswith("\n"):
                     self._write_indent()
 
         elif isinstance(obj, float) or isinstance(obj, int):
@@ -134,6 +126,7 @@ class _MarkstoreLoader:
         self.fp = fp
         self.indent = 0
         self.dictDepth = 0
+        # Number of # already read in, used to handle nested dicts
         self.alreadyReadDict = 0
 
     def _consume_indent(self, amount: int) -> int:
@@ -157,7 +150,7 @@ class _MarkstoreLoader:
 
         c = self.fp.read(1)
         if len(c) == 0:
-            return None
+            return ""
         # First char will be #, -, or else it is a string
         if c == b'#':
             obj = {}
@@ -198,15 +191,18 @@ class _MarkstoreLoader:
                 else:
                     c = self.fp.read(1)
                     if c == b'\n':
-                        # TODO is this bad? check indent?
                         newIndent = self._consume_indent(expectedIndent)
+                        self.indent = newIndent
                         if newIndent < expectedIndent:
-                            self.indent = newIndent
                             break
                         c = self.fp.read(1)
                     if c != b'#':
                         self._unget()
                         break
+                if self.indent != expectedIndent:
+                    # Have to unget the # we just read
+                    self._unget()
+                    break
 
             self.dictDepth -= 1
 
@@ -216,16 +212,12 @@ class _MarkstoreLoader:
                 self.indent += 2
                 curIndent = self.indent
                 temp = self.fp.read(1)
-                if temp != b' ':
-                    self._unget()
                 obj.append(self._load_obj())
                 if self.indent != curIndent - 2:
                     break
                 c = self.fp.read(1)
                 if len(c) == 0:
                     break
-                if c == b'\n':
-                    c = self.fp.read(1)
                 if c != b'-':
                     self._unget()
                     break
@@ -233,13 +225,18 @@ class _MarkstoreLoader:
         else:
             # It's a string
             # Read lines until we hit an important char
-            obj = c + self.fp.readline()
+            if c != b'\n':
+                obj = c + self.fp.readline()
+            else:
+                obj = c
             while True:
                 newIndent = self._consume_indent(self.indent)
-                if newIndent != self.indent:
+                if newIndent < self.indent:
                     self.indent = newIndent
                     break
                 c = self.fp.read(1)
+                if len(c) == 0:
+                    break
 
                 if c in (b'#', b'-'):
                     self._unget()
@@ -248,10 +245,13 @@ class _MarkstoreLoader:
                     new_line = c + self.fp.readline()
                 else:
                     new_line = c
-                if len(new_line) == 0:
-                    break
-                else:
-                    obj += new_line
-            obj = obj.decode().rstrip()
+
+                obj += new_line
+            obj = obj.decode()
+            if obj.endswith("\n"):
+                temp = self.fp.read(1)
+                if len(temp) != 0:
+                    obj = obj[:-1]
+                    self._unget()
 
         return obj
