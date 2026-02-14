@@ -2,11 +2,6 @@ name: dist
 
 on:
   pull_request:
-  push:
-    branches:
-    - main
-    tags:
-    - '*'
   release:
     types: [published]
 
