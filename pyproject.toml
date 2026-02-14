@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "markstore"
-version = "1.1.0"
+version = "1.2.0"
 authors = [{ name = "Alagyn" }]
 description = "Markdown as plain-text data storage"
 readme = "README.md"
